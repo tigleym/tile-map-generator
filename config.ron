@@ -1,0 +1,11 @@
+(
+    height: 800,
+    width: 800,
+    tile_size: 16,
+    wall_tile: (16, 12),
+    floor_tile: (16, 16),
+    max_room_size: 10,
+    min_room_size: 5,
+    max_rooms: 20,
+    min_rooms: 15,
+)
