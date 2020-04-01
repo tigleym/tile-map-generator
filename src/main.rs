@@ -7,14 +7,16 @@ use ron::de::{from_reader};
 use serde::Deserialize;
 
 mod dungeon_generator;
-use crate::dungeon_generator::{create_map, RoomConfig};
+use crate::dungeon_generator::{create_map, RoomConfig, Wall};
 
 #[derive(Debug, Deserialize)]
 struct Config {
     height: u32,
     width: u32,
     tile_size: u32,
-    wall_tile: (u32, u32),
+    wall_tile_h: (u32, u32),
+    wall_tile_v_right: (u32, u32),
+    wall_tile_v_left: (u32, u32),
     floor_tile: (u32, u32),
     max_room_size: u32,
     min_room_size: u32,
@@ -43,8 +45,12 @@ fn main() {
     let imgx = config.width;
     let imgy = config.height;
     let tile_size = config.tile_size;
-    let wall_tile_x = config.wall_tile.0;
-    let wall_tile_y = config.wall_tile.1;
+    let wall_tile_h_x = config.wall_tile_h.0;
+    let wall_tile_h_y = config.wall_tile_h.1;
+    let wall_tile_vr_x = config.wall_tile_v_right.0;
+    let wall_tile_vr_y = config.wall_tile_v_right.1;
+    let wall_tile_vl_x = config.wall_tile_v_left.0;
+    let wall_tile_vl_y = config.wall_tile_v_left.1;
     let floor_tile_x = config.floor_tile.0;
     let floor_tile_y = config.floor_tile.1;
 
@@ -69,13 +75,34 @@ fn main() {
       for x in x_pixel_offset..(x_pixel_offset + tile_size) {
         for y in y_pixel_offset..(y_pixel_offset + tile_size) {
 
-          let mut sprite_x = floor_tile_x;
-          let mut sprite_y = floor_tile_y;
+          let mut sprite_x = 0;
+          let mut sprite_y = 0;
 
-          if !tile.empty {
-            sprite_x = wall_tile_x;
-            sprite_y = wall_tile_y;
-          }
+          // println!("sprite type: {:?}", tile.sprite_type);
+          match tile.sprite_type {
+            Some(Wall::Top) => {
+              sprite_x = wall_tile_h_x;
+              sprite_y = wall_tile_h_y;
+            },
+            Some(Wall::Right) => {
+              sprite_x = wall_tile_vr_x;
+              sprite_y = wall_tile_vr_y;
+            },
+            Some(Wall::Bottom) => {
+              sprite_x = wall_tile_h_x;
+              sprite_y = wall_tile_h_y;
+            },
+            Some(Wall::Left) => {
+              sprite_x = wall_tile_vl_x;
+              sprite_y = wall_tile_vl_y;
+            },
+            Some(Wall::Floor) => {
+              sprite_x = floor_tile_x;
+              sprite_y = floor_tile_y;
+            }
+            None => {},
+          };
+
           let pix_x = sprite_x + (x % tile_size);
           let pix_y = sprite_y + (y % tile_size);
 
