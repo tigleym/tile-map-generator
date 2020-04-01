@@ -7,7 +7,7 @@
     wall_tile_v_left: (0, 128),
     floor_tile: (16, 64),
     max_room_size: 10,
-    min_room_size: 5,
-    max_rooms: 20,
-    min_rooms: 15,
+    min_room_size: 7,
+    max_rooms: 10,
+    min_rooms: 10,
 )

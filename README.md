@@ -8,6 +8,7 @@ Builds an image of a procedural generated map by stitching together sprite image
 3. View the generated `output.png` file.
 
 ## TODOs
-- [] Allow specification of more sprite images to draw.
-- [] Better error handling.
-- [] Add example of usage.
+- [ ] Allow specification of more sprite images to draw.
+- [ ] Better error handling.
+- [ ] Prevent infinite looping during room generation.
+- [ ] Add example of usage.

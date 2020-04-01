@@ -137,9 +137,9 @@ pub fn create_map(width: &u32, height: &u32, tile_size: &u32, room_config: &Room
 
   // Create tunnels between rooms.
   for (index, room) in generated_rooms.iter().enumerate() {
-    if index > 0 {
+    if index < generated_rooms.len() - 1 {
       let current_center = room.center();
-      let prev_center = &generated_rooms[index - 1].center();
+      let prev_center = &generated_rooms[index + 1].center();
 
       if rand::random() {
         // draw a horizontal corridor first, then vertical
@@ -166,18 +166,14 @@ fn create_new_room<'a> (tiles: &'a mut Vec<Tile>, room: &Rect, map_width: &u32, 
 
       if (room.x + room.w < *map_width) && room.x > 0 && room.y > 0  && (room.y + room.h < *map_height) {
         if tiles[index].north() == (room.y + room.h)  {
-          println!("north");
           tiles[index].wall(Wall::Top);
         } else if tiles[index].south() == (room.y - 1) {
-          println!("south");
           tiles[index].wall(Wall::Bottom);
         }
 
         if tiles[index].east() == (room.x + room.w) {
-          println!("east");
           tiles[index].wall(Wall::Right);
         } else if tiles[index].west() == (room.x - 1) {
-          println!("west");
           tiles[index].wall(Wall::Left);
         }
       }
@@ -198,42 +194,36 @@ fn create_h_tunnel<'a> (tiles: &'a mut Vec<Tile>, map_width: &u32, x1: &u32, x2:
 
     let north_tile_index = tiles[index].north();
     let south_tile_index = tiles[index].south();
+    let east_tile_index = tiles[index].east();
+    let west_tile_index = tiles[index].west();
+
+    match &tiles[(east_tile_index * map_width + y) as usize].sprite_type {
+      None => {
+        if x == min_x {
+          tiles[(east_tile_index * map_width + y) as usize].wall(Wall::Top);
+        }
+      },
+      _=> {},
+    }
+
+    match &tiles[(west_tile_index * map_width + y) as usize].sprite_type {
+      None => {
+        if x == min_x {
+          tiles[(west_tile_index * map_width + y) as usize].wall(Wall::Top);
+        }
+      },
+      _=> {},
+    }
 
     match &tiles[(x * map_width + north_tile_index) as usize].sprite_type {
-      Some(Wall::Top) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Top);
-      },
-      Some(Wall::Bottom) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Top);
-      },
-      Some(Wall::Right) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Top);
-      },
-      Some(Wall::Left) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Top);
-      },
-      Some(Wall::Floor) => {},
-      None => {
+      Some(Wall::Bottom) | Some(Wall::Right) | Some(Wall::Left) | None => {
         tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Top);
       },
       _ => {},
     }
 
-    match &tiles[(x * map_width + north_tile_index) as usize].sprite_type {
-      Some(Wall::Top) => {
-        tiles[(x * map_width + south_tile_index) as usize].wall(Wall::Bottom);
-      },
-      Some(Wall::Bottom) => {
-        tiles[(x * map_width + south_tile_index) as usize].wall(Wall::Bottom);
-      },
-      Some(Wall::Right) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Bottom);
-      },
-      Some(Wall::Left) => {
-        tiles[(x * map_width + north_tile_index) as usize].wall(Wall::Bottom);
-      },
-      Some(Wall::Floor) => {},
-      None => {
+    match &tiles[(x * map_width + south_tile_index) as usize].sprite_type {
+      Some(Wall::Bottom) | Some(Wall::Right) | Some(Wall::Left) | None => {
         tiles[(x * map_width + south_tile_index) as usize].wall(Wall::Bottom);
       },
       _ => {},
@@ -249,6 +239,7 @@ fn create_v_tunnel<'a> (tiles: &'a mut Vec<Tile>, map_width: &u32, y1: &u32, y2:
 
   for y in min_y..max_y {
     let index = (x * map_width + y) as usize;
+
     tiles[index].floor();
     tiles[index].wall(Wall::Floor);
 
@@ -256,26 +247,14 @@ fn create_v_tunnel<'a> (tiles: &'a mut Vec<Tile>, map_width: &u32, y1: &u32, y2:
     let west_tile_index = tiles[index].west();
 
     match &tiles[(east_tile_index * map_width + y) as usize].sprite_type {
-      Some(Wall::Right) => {
-        tiles[(east_tile_index * map_width + y) as usize].wall(Wall::Right);
-      },
-      Some(Wall::Left) => {
-        tiles[(east_tile_index * map_width + y) as usize].wall(Wall::Right);
-      },
-      None => {
+      Some(Wall::Right) | Some(Wall::Left) | None => {
         tiles[(east_tile_index * map_width + y) as usize].wall(Wall::Right);
       },
       _ => {},
     }
 
     match &tiles[(west_tile_index * map_width + y) as usize].sprite_type {
-      Some(Wall::Right) => {
-        tiles[(west_tile_index * map_width + y) as usize].wall(Wall::Left);
-      },
-      Some(Wall::Left) => {
-        tiles[(west_tile_index * map_width + y) as usize].wall(Wall::Left);
-      },
-      None => {
+      Some(Wall::Right)| Some(Wall::Left) | None => {
         tiles[(west_tile_index * map_width + y) as usize].wall(Wall::Left);
       },
       _ => {},
